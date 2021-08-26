@@ -10,7 +10,7 @@ export default class Snake extends GameObject implements GameObjectInterface {
     private _edge: position = { x: 0, y: 0 };
     private _position: position = { x: 0, y: 0 };
     private _currentDir: direction = direction.RIGHT;
-    private _body: position[] = [];
+    private _body: Graphics[] = [];
     private _bodyGriphic: Graphics;
 
     constructor() {
@@ -28,6 +28,54 @@ export default class Snake extends GameObject implements GameObjectInterface {
         _bodyGriphic.y = pos.y;
 
         return _bodyGriphic;
+    }
+    private _transformHead(_body: Graphics): Graphics {
+        var _eyeColor = 0x000000;
+        _body.clear();
+        _body.beginFill(0xffffff);
+        _body.drawRect(0, 0, 10, 10);
+        _body.endFill();
+
+        switch (this._currentDir) {
+            case direction.UP:
+                _body.beginFill(_eyeColor);
+                _body.drawRect(2, 2, 2, 2);
+                _body.endFill();
+
+                _body.beginFill(_eyeColor);
+                _body.drawRect(6, 2, 2, 2);
+                _body.endFill();
+                break;
+            case direction.DOWN:
+                _body.beginFill(_eyeColor);
+                _body.drawRect(2, 6, 2, 2);
+                _body.endFill();
+
+                _body.beginFill(_eyeColor);
+                _body.drawRect(6, 6, 2, 2);
+                _body.endFill();
+                break;
+            case direction.RIGHT:
+                _body.beginFill(_eyeColor);
+                _body.drawRect(2, 2, 2, 2);
+                _body.endFill();
+
+                _body.beginFill(_eyeColor);
+                _body.drawRect(6, 6, 4, 2);
+                _body.endFill();
+                break;
+            case direction.LEFT:
+                _body.beginFill(_eyeColor);
+                _body.drawRect(6, 2, 2, 2);
+                _body.endFill();
+
+                _body.beginFill(_eyeColor);
+                _body.drawRect(0, 6, 4, 2);
+                _body.endFill();
+                break;
+        }
+
+        return _body;
     }
     private _updateBodyPosition(_movement): position[] {
         var _newPosition: position[] = [];
@@ -56,13 +104,13 @@ export default class Snake extends GameObject implements GameObjectInterface {
         if (_pos.x < 0) {
             _pos.x = this._edge.x - this._step;
         }
-        if (_pos.x > this._edge.x) {
+        if (_pos.x > this._edge.x - this._step) {
             _pos.x = 0;
         }
         if (_pos.y < 0) {
             _pos.y = this._edge.y - this._step;
         }
-        if (_pos.y > this._edge.y) {
+        if (_pos.y > this._edge.y - this._step) {
             _pos.y = 0;
         }
         return _pos;
@@ -76,6 +124,7 @@ export default class Snake extends GameObject implements GameObjectInterface {
     }
 
     move(dir: direction) {
+        var _self = this;
         var _movement: position = { x: 0, y: 0 };
         this._currentDir = dir;
 
@@ -90,6 +139,9 @@ export default class Snake extends GameObject implements GameObjectInterface {
         this._body.map(function (_body, i) {
             _body.x = _newPosition[i].x;
             _body.y = _newPosition[i].y;
+            if (i < 1) {
+                _body = _self._transformHead(_self._body[i]);
+            }
         })
     }
     update() { }
