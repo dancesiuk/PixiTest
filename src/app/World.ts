@@ -7,7 +7,7 @@ export default class World extends GameObject {
     private _gridSize: number = 10;
     private _worldSize: any = {};
     private _gridMapSprit: Sprite;
-    private _map: any = {};
+    private _map: Array<Array<position>> = [];
 
     constructor() {
         super();
@@ -32,7 +32,7 @@ export default class World extends GameObject {
     }
     private _createGridLines(cols: number, rows: number): Graphics {
         var _gridLine: Graphics = new Graphics();
-        _gridLine.lineStyle(1, 0x555555);
+        _gridLine.lineStyle(1, 0x333333);
 
         // draw vertical lines
         for (let i = 1; i < cols; i++) {
@@ -65,5 +65,12 @@ export default class World extends GameObject {
     }
     getPosition(x: number, y: number): position {
         return this._map[x][y];
+    }
+
+    get gridSize() {
+        return this._gridSize;
+    }
+    get map() {
+        return this._map;
     }
 }

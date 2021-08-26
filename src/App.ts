@@ -1,52 +1,82 @@
 
 import { Application, Sprite, Container, Graphics } from 'pixi.js'
+import { GameObject } from './lib/GameObject';
+import { direction } from './lib/Interfaces';
+
 import Snake from './app/Snake';
 import World from './app/World';
 import Utils from './lib/Util';
+import Food from './app/Food';
 
-export default class App {
+export default class App extends GameObject {
     private _app: Application;
     private _world: World;
+    private _snake: Snake;
+    private _food: Food;
     private _width: number;
     private _height: number;
+    private _moveDir: direction = direction.RIGHT;
 
-    constructor() { }
+    constructor() {
+        super();
+        this._setListener();
+    }
+    private _setListener() {
+        var _self = this;
+        // Add the 'keydown' event listener to our document
+        document.addEventListener('keydown', onKeyDown);
+
+        function onKeyDown(key) {
+            switch (key.keyCode) {
+                case 87:
+                case 38:    // W Key is 87, Up arrow is 87
+                    if (_self._moveDir != direction.DOWN) {
+                        _self._moveDir = direction.UP;
+                    }
+                    break;
+
+                case 83:
+                case 40:    // S Key is 83, Down arrow is 40
+                    if (_self._moveDir != direction.UP) {
+                        _self._moveDir = direction.DOWN;
+                    }
+                    break;
+
+                case 65:
+                case 37:    // A Key is 65, Left arrow is 37
+                    if (_self._moveDir != direction.RIGHT) {
+                        _self._moveDir = direction.LEFT;
+                    }
+                    break;
+
+                case 68:
+                case 39:    // D Key is 68, Right arrow is 39
+                    if (_self._moveDir != direction.LEFT) {
+                        _self._moveDir = direction.RIGHT;
+                    }
+                    break;
+            }
+        }
+    }
     private _createWrold() {
         this._world = new World();
         this._world.init(this._width, this._height);
         this._app.stage.addChild(this._world.getGridMap());
     }
     private _createSnake() {
-        var _s: Snake = new Snake(10, 10);
-    }
-    private _drawDot() {
-        // const clampy: Sprite = Sprite.from("clampy.png");
+        this._snake = new Snake();
+        this._snake.step = this._world.gridSize;
+        this._snake.edge = { x: this._width, y: this._height };
 
-        // clampy.anchor.set(0.5);
-        // clampy.x = app.screen.width / 2;
-        // clampy.y = app.screen.height / 2;
-        // app.stage.addChild(clampy);
+        this._snake.addBody(this._world.getPosition(5, 5));
 
-        var _mapPos = this._world.getPosition(10, 10);
-
-        const graphy: Graphics = new Graphics();
-        graphy.beginFill(0xffffff);
-        graphy.drawRect(0, 0, 10, 10);
-        graphy.endFill();
-
-        var _dot: Sprite = new Sprite();
-        _dot.addChild(graphy);
-        _dot.x = _mapPos.x;
-        _dot.y = _mapPos.y;
-        this._app.stage.addChild(_dot);
-        console.log('app', this._app);
-        // app.stage.addChild(graphy); //I can add it before setting position, nothing bad will happen.
+        this._app.stage.addChild(this._snake.snake);
     }
 
     init() {
         this._width = Utils.gameConfig.width = 640;
         this._height = Utils.gameConfig.height = 480;
-        Utils.gameConfig.frameRate = 5;
+        Utils.gameConfig.frameRate = 10;
 
         this._app = new Application({
             view: document.getElementById("pixi-canvas") as HTMLCanvasElement,
@@ -59,9 +89,25 @@ export default class App {
 
         this._createWrold();
         this._createSnake();
-        this._drawDot();
+
+        this._food = new Food();
+        this._food.map = this._world.map;
+        this._food.createFood();
+        this._app.stage.addChild(this._food.food);
     }
 
+    update() {
+        // console.log('app update');
+        this._snake.move(this._moveDir);
+        if (isEatFood(this._snake.head, this._food.food)) {
+            this._food.eaten();
+            this._snake.addBody(this._snake.head);
+        }
+
+        function isEatFood(objA, objB): boolean {
+            return (objA.x == objB.x && objA.y == objB.y);
+        }
+    }
 
 }
 var _app = new App();
