@@ -9,3 +9,9 @@ export enum direction {
     LEFT,
     RIGHT
 }
+
+export enum foodLevel {
+    LEVEL1,
+    LEVEL2,
+    LEVEL3
+}

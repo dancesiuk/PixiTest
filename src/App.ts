@@ -1,7 +1,7 @@
 
 import { Application, Sprite, Container, Graphics } from 'pixi.js'
 import { GameObject } from './lib/GameObject';
-import { direction } from './lib/Interfaces';
+import { direction, foodLevel } from './lib/Interfaces';
 
 import Snake from './app/Snake';
 import World from './app/World';
@@ -68,7 +68,7 @@ export default class App extends GameObject {
         this._snake.step = this._world.gridSize;
         this._snake.edge = { x: this._width, y: this._height };
 
-        this._snake.addBody(this._world.getPosition(5, 5));
+        this._snake.addBody(this._world.getPosition(5, 5), foodLevel.LEVEL1);
 
         this._app.stage.addChild(this._snake.snake);
     }
@@ -100,8 +100,8 @@ export default class App extends GameObject {
         // console.log('app update');
         this._snake.move(this._moveDir);
         if (isEatFood(this._snake.head, this._food.food)) {
-            this._food.eaten();
-            this._snake.addBody(this._snake.head);
+            var _foodLevel = this._food.eaten();
+            this._snake.addBody(this._snake.head, _foodLevel);
         }
 
         function isEatFood(objA, objB): boolean {

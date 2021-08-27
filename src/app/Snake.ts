@@ -1,4 +1,4 @@
-import { direction, position } from "../lib/Interfaces";
+import { direction, foodLevel, position } from "../lib/Interfaces";
 import { GameObject, GameObjectInterface } from "../lib/GameObject";
 import { Graphics, Sprite } from "pixi.js";
 
@@ -116,11 +116,19 @@ export default class Snake extends GameObject implements GameObjectInterface {
         return _pos;
     }
 
-    addBody(pos: position) {
+    addBody(_pos: position, _foodLevel: foodLevel) {
         // this._renderBody();
-        var _bodyImage = this._createBody(pos);
-        this._body.push(_bodyImage);
-        this._snake.addChild(_bodyImage);
+        var _level: number;
+        switch (_foodLevel) {
+            case foodLevel.LEVEL1: _level = 1; break;
+            case foodLevel.LEVEL2: _level = 5; break;
+            case foodLevel.LEVEL3: _level = 20; break;
+        }
+        for (var i = 0; i < _level; i++) {
+            var _bodyImage = this._createBody(_pos);
+            this._body.push(_bodyImage);
+            this._snake.addChild(_bodyImage);
+        }
     }
 
     move(dir: direction) {
